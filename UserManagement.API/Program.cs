@@ -1,3 +1,7 @@
+using LoggerService;
+using Microsoft.AspNetCore.Mvc;
+using UserManagement.API.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 ConfigureServices(builder.Services,builder.Configuration);
@@ -29,11 +33,9 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
         options.SuppressModelStateInvalidFilter = true;
     });
 
-    services.ConfigureSwagger();
-
     services.ConfigureCors();
 
-    services.AddScoped<ValidationFilterAttribute>();
+    //services.AddScoped<ValidationFilterAttribute>();
 
     services.ConfigureLoggerService();
 
@@ -43,23 +45,23 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
     services.ConfigureSqlContext(configuration);
 
-    services.AddControllers(config =>
-        {
-            config.RespectBrowserAcceptHeader = true;
-            config.ReturnHttpNotAcceptable = true;
-            config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
-            config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120 });
-        }).AddXmlDataContractSerializerFormatters()
-        .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-            options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
-        })
-        .AddApplicationPart(typeof(AssemblyReference).Assembly);
+    // services.AddControllers(config =>
+    //     {
+    //         config.RespectBrowserAcceptHeader = true;
+    //         config.ReturnHttpNotAcceptable = true;
+    //         config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
+    //         config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120 });
+    //     }).AddXmlDataContractSerializerFormatters()
+    //     .AddJsonOptions(options =>
+    //     {
+    //         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    //         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+    //         options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+    //     })
+    //     .AddApplicationPart(typeof(AssemblyReference).Assembly);
 
-    services.AddMediatR(cfg =>
-        cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly));
+    // services.AddMediatR(cfg =>
+    //     cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly));
     services.AddAutoMapper(typeof(Program));
 
     services.AddAuthentication();
@@ -72,12 +74,6 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
 static void ConfigureApp(IApplicationBuilder app)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(s =>
-    {
-        s.SwaggerEndpoint("/swagger/v1/swagger.json", "Cinema API v1");
-    });
-
     app.UseHttpsRedirection();
 
     app.UseForwardedHeaders(new ForwardedHeadersOptions

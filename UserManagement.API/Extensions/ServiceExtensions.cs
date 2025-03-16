@@ -1,6 +1,15 @@
 ﻿using System.Text;
+using Application.Services;
+using Contracts.IRepositories;
+using Contracts.IServices;
+using Domain.ConfigurationModels;
+using Domain.Entities;
+using LoggerService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Persistance;
 
 namespace UserManagement.API.Extensions;
 
@@ -45,7 +54,7 @@ public static class ServiceExtensions
                 o.Password.RequiredLength = 10;
                 o.User.RequireUniqueEmail = true;
             })
-            .AddEntityFrameworkStores<CinemaContext>()
+            .AddEntityFrameworkStores<UserManagementContext>()
             .AddDefaultTokenProviders();
     }
     
