@@ -20,6 +20,13 @@ public class UserRepository(UserManagementContext dbContext) : RepositoryBase<Us
         return new PagedList<User>(users, count, userParameters.PageNumber, userParameters.PageSize);
     }
 
+    public async Task<User?> GetUserByEmailAsync(string email)
+    {
+        var existingUser = await FindByCondition(u => u.Email == email && u.DeletedAt == null, false).FirstOrDefaultAsync();
+
+        return existingUser;
+    }
+
     public async Task<IEnumerable<User>> GetAllUsersWithoutMetaAsync(bool trackChanges)
     {
         var users = await FindAll(trackChanges)
