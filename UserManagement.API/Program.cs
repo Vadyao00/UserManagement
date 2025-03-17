@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Application.Services;
+using Contracts.IServices;
 using Controllers;
 using Controllers.Filters;
 using LoggerService;
@@ -42,6 +44,9 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.ConfigureCors();
 
     services.AddScoped<ValidationFilterAttribute>();
+    
+    services.AddScoped<IUserService, UserService>(); 
+    services.AddScoped<IAuthenticationService, AuthenticationService>(); 
 
     services.ConfigureLoggerService();
 

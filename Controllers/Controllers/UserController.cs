@@ -3,25 +3,48 @@ using Controllers.Extensions;
 using Domain.Dtos;
 using Domain.Entities;
 using Domain.RequestFeatures;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Controllers.Controllers;
 
 [Route("api/users")]
+[Authorize(Roles = "Administrator")]
 [ApiController]
 public class UserController : ApiControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IAuthenticationService _authenticationService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IAuthenticationService authenticationService)
     {
         _userService = userService;
+        _authenticationService = authenticationService;
+    }
+    
+    private string GetTokenFromRequest()
+    {
+        var authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
+        
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+        {
+            return null;
+        }
+        return authorizationHeader.Substring("Bearer ".Length).Trim();
     }
     
     [HttpGet]
     public async Task<IActionResult> GetAllUsers([FromQuery] UserParameters userParameters)
     {
-        var baseResult = await _userService.GetAllUsersAsync(userParameters);
+        var token = GetTokenFromRequest();
+        if (string.IsNullOrEmpty(token))
+        {
+            return Unauthorized();
+        }
+
+        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        
+        var baseResult = await _userService.GetAllUsersAsync(userParameters, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         
@@ -48,7 +71,15 @@ public class UserController : ApiControllerBase
     [HttpDelete("{email}")]
     public async Task<IActionResult> DeleteUser(string email)
     {
-        var baseResult = await _userService.DeleteUserAsync(email);
+        var token = GetTokenFromRequest();
+        if (string.IsNullOrEmpty(token))
+        {
+            return Unauthorized();
+        }
+        
+        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        
+        var baseResult = await _userService.DeleteUserAsync(email, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         
@@ -58,7 +89,15 @@ public class UserController : ApiControllerBase
     [HttpPost("block/{email}")]
     public async Task<IActionResult> BlockUser(string email)
     {
-        var baseResult = await _userService.BlockUserAsync(email);
+        var token = GetTokenFromRequest();
+        if (string.IsNullOrEmpty(token))
+        {
+            return Unauthorized();
+        }
+        
+        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        
+        var baseResult = await _userService.BlockUserAsync(email, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         
@@ -68,7 +107,15 @@ public class UserController : ApiControllerBase
     [HttpPost("unblock/{email}")]
     public async Task<IActionResult> UnblockUser(string email)
     {
-        var baseResult = await _userService.UnblockUserAsync(email);
+        var token = GetTokenFromRequest();
+        if (string.IsNullOrEmpty(token))
+        {
+            return Unauthorized();
+        }
+        
+        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        
+        var baseResult = await _userService.UnblockUserAsync(email, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         

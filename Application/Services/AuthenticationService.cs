@@ -82,6 +82,7 @@ public sealed class AuthenticationService : IAuthenticationService
         var refreshToken = GenerateRefreshToken();
 
         _user.RefreshToken = refreshToken;
+        _user.LastLogin = DateTime.UtcNow;
 
         _manager.User.UpdateUser(_user);
         await _manager.SaveAsync();
@@ -180,5 +181,19 @@ public sealed class AuthenticationService : IAuthenticationService
         var token = await CreateToken(populateExp: false);
 
         return new ApiOkResponse<TokenDto>(token);
+    }
+    
+    public async Task<User> GetCurrentUserFromTokenAsync(string token)
+    {
+        var principal = GetPrincipalFromExpiredToken(token);
+        var userEmail = principal.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            return null;
+        }
+
+        var user = await _manager.User.GetUserByEmailAsync(userEmail);
+        return user;
     }
 }

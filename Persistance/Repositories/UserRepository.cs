@@ -3,6 +3,7 @@ using Domain.Entities;
 using Domain.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Persistance.Extensions;
 
 namespace Persistance.Repositories;
 
@@ -11,6 +12,7 @@ public class UserRepository(UserManagementContext dbContext) : RepositoryBase<Us
     public async Task<PagedList<User>> GetAllUsersAsync(UserParameters userParameters, bool trackChanges)
     {
         var users = await FindAll(trackChanges)
+            .Sort(userParameters.OrderBy)
             .Skip((userParameters.PageNumber - 1) * userParameters.PageSize)
             .Take(userParameters.PageSize)
             .ToListAsync();
