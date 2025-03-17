@@ -1,5 +1,7 @@
 ﻿using Contracts.IServices;
+using Controllers.Extensions;
 using Domain.Dtos;
+using Domain.Entities;
 using Domain.RequestFeatures;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,10 +21,15 @@ public class UserController : ApiControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllUsers([FromQuery] UserParameters userParameters)
     {
-        var users = await _userService.GetAllUsersAsync(userParameters);
+        var baseResult = await _userService.GetAllUsersAsync(userParameters);
+        if(!baseResult.Suссess)
+            return ProccessError(baseResult);
+        
+        var result = baseResult.GetResult<List<User>>();
+        
         var userDtos = new List<UserDto>();
 
-        foreach (var user in users)
+        foreach (var user in result)
         {
             userDtos.Add(new UserDto
             {
@@ -41,29 +48,30 @@ public class UserController : ApiControllerBase
     [HttpDelete("{email}")]
     public async Task<IActionResult> DeleteUser(string email)
     {
-        var user = await _userService.GetUserByEmailAsync(email);
-
-        if (user == null)
-        {
-            return NotFound("User not found.");
-        }
-
-        await _userService.DeleteUserAsync(email);
-
+        var baseResult = await _userService.DeleteUserAsync(email);
+        if(!baseResult.Suссess)
+            return ProccessError(baseResult);
+        
         return Ok();
     }
     
     [HttpPost("block/{email}")]
     public async Task<IActionResult> BlockUser(string email)
     {
-        await _userService.BlockUserAsync(email);
+        var baseResult = await _userService.BlockUserAsync(email);
+        if(!baseResult.Suссess)
+            return ProccessError(baseResult);
+        
         return Ok();
     }
     
     [HttpPost("unblock/{email}")]
     public async Task<IActionResult> UnblockUser(string email)
     {
-        await _userService.UnblockUserAsync(email);
+        var baseResult = await _userService.UnblockUserAsync(email);
+        if(!baseResult.Suссess)
+            return ProccessError(baseResult);
+        
         return Ok();
     }
 }

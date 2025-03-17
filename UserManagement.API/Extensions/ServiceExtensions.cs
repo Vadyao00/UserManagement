@@ -27,11 +27,11 @@ public static class ServiceExtensions
 
     public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>
         services.AddDbContext<UserManagementContext>(opts =>
-            opts.UseNpgsql(configuration.GetConnectionString("DefaultConnectionLocal"), b =>
-                {
-                    b.EnableRetryOnFailure();
-                })
-                .EnableSensitiveDataLogging()
+                opts.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), b =>
+                    {
+                        b.EnableRetryOnFailure();
+                    })
+                    .EnableSensitiveDataLogging()
         );
     
     public static void ConfigureLoggerService(this IServiceCollection services) =>
@@ -42,21 +42,6 @@ public static class ServiceExtensions
     
     public static void ConfigureServiceManager(this IServiceCollection services) =>
         services.AddScoped<IServiceManager, ServiceManager>();
-    
-    public static void ConfigureIdentity(this IServiceCollection services)
-    {
-        var builder = services.AddIdentity<User, IdentityRole>(o =>
-            {
-                o.Password.RequireDigit = true;
-                o.Password.RequireLowercase = false;
-                o.Password.RequireUppercase = false;
-                o.Password.RequireNonAlphanumeric = false;
-                o.Password.RequiredLength = 10;
-                o.User.RequireUniqueEmail = true;
-            })
-            .AddEntityFrameworkStores<UserManagementContext>()
-            .AddDefaultTokenProviders();
-    }
     
     public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
     {

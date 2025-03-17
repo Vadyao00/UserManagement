@@ -2,6 +2,7 @@
 using Contracts.IServices;
 using Domain.Entities;
 using Domain.RequestFeatures;
+using Domain.Responses;
 
 namespace Application.Services;
 
@@ -14,17 +15,25 @@ public class UserService : IUserService
         _repositoryManager = repositoryManager;
     }
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync(UserParameters userParameters)
+    public async Task<ApiBaseResponse> GetAllUsersAsync(UserParameters userParameters)
     {
-        return await _repositoryManager.User.GetAllUsersAsync(userParameters, trackChanges: false);
+        var users = await _repositoryManager.User.GetAllUsersAsync(userParameters, trackChanges: false);
+        return new ApiOkResponse<List<User>>(users);
     }
 
-    public async Task<User> GetUserByEmailAsync(string email)
+    public async Task<ApiBaseResponse> GetUserByEmailAsync(string email)
     {
-        return await _repositoryManager.User.GetUserByEmailAsync(email);
+        var existingUser = await _repositoryManager.User.GetUserByEmailAsync(email);
+
+        if (existingUser == null)
+        {
+            return new InvalidEmailBadRequestResponse();
+        }
+        
+        return new ApiOkResponse<User>(existingUser);
     }
 
-    public async Task DeleteUserAsync(string email)
+    public async Task<ApiBaseResponse> DeleteUserAsync(string email)
     {
         var user = await _repositoryManager.User.GetUserByEmailAsync(email);
         if (user != null)
@@ -32,9 +41,15 @@ public class UserService : IUserService
             _repositoryManager.User.DeleteUser(user);
             await _repositoryManager.SaveAsync();
         }
+        else
+        {
+            return new InvalidEmailBadRequestResponse();
+        }
+
+        return new ApiOkResponse<User>(user);
     }
 
-    public async Task BlockUserAsync(string email)
+    public async Task<ApiBaseResponse> BlockUserAsync(string email)
     {
         var user = await _repositoryManager.User.GetUserByEmailAsync(email);
         if (user != null)
@@ -43,9 +58,15 @@ public class UserService : IUserService
             _repositoryManager.User.UpdateUser(user);
             await _repositoryManager.SaveAsync();
         }
+        else
+        {
+            return new InvalidEmailBadRequestResponse();
+        }
+        
+        return new ApiOkResponse<User>(user);
     }
 
-    public async Task UnblockUserAsync(string email)
+    public async Task<ApiBaseResponse> UnblockUserAsync(string email)
     {
         var user = await _repositoryManager.User.GetUserByEmailAsync(email);
         if (user != null)
@@ -54,5 +75,11 @@ public class UserService : IUserService
             _repositoryManager.User.UpdateUser(user);
             await _repositoryManager.SaveAsync();
         }
+        else
+        {
+            return new InvalidEmailBadRequestResponse();
+        }
+        
+        return new ApiOkResponse<User>(user);
     }
 }

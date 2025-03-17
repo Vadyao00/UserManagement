@@ -83,9 +83,6 @@ public sealed class AuthenticationService : IAuthenticationService
 
         _user.RefreshToken = refreshToken;
 
-        if (populateExp)
-            _user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-
         _manager.User.UpdateUser(_user);
         await _manager.SaveAsync();
 

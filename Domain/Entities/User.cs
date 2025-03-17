@@ -8,10 +8,10 @@ public class User
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public string Name { get; set; }
-    public DateTime? LastLogin { get; set; }
-    public DateTime RegistrationTime { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset? LastLogin { get; set; }
+    public DateTimeOffset RegistrationTime { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "active";
-    public DateTime? DeletedAt { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
     public string? RefreshToken { get; set; }
-    public DateTime RefreshTokenExpiryTime { get; set; }
+    public DateTimeOffset RefreshTokenExpiryTime { get; set; }
 }

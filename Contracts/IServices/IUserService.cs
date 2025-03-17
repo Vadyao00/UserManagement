@@ -1,17 +1,18 @@
 ﻿using Domain.Entities;
 using Domain.RequestFeatures;
+using Domain.Responses;
 
 namespace Contracts.IServices;
 
 public interface IUserService
 {
-    Task<IEnumerable<User>> GetAllUsersAsync(UserParameters userParameters);
+    Task<ApiBaseResponse> GetAllUsersAsync(UserParameters userParameters);
     
-    Task<User> GetUserByEmailAsync(string email);
+    Task<ApiBaseResponse> GetUserByEmailAsync(string email);
     
-    Task DeleteUserAsync(string email);
+    Task<ApiBaseResponse> DeleteUserAsync(string email);
     
-    Task BlockUserAsync(string email);
+    Task<ApiBaseResponse> BlockUserAsync(string email);
     
-    Task UnblockUserAsync(string email);
+    Task<ApiBaseResponse> UnblockUserAsync(string email);
 }

@@ -1,5 +1,11 @@
+using System.Text.Json.Serialization;
+using Controllers;
+using Controllers.Filters;
 using LoggerService;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
+using UserManagement.API.Converters;
 using UserManagement.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +41,7 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
     services.ConfigureCors();
 
-    //services.AddScoped<ValidationFilterAttribute>();
+    services.AddScoped<ValidationFilterAttribute>();
 
     services.ConfigureLoggerService();
 
@@ -45,27 +51,26 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
     services.ConfigureSqlContext(configuration);
 
-    // services.AddControllers(config =>
-    //     {
-    //         config.RespectBrowserAcceptHeader = true;
-    //         config.ReturnHttpNotAcceptable = true;
-    //         config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
-    //         config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120 });
-    //     }).AddXmlDataContractSerializerFormatters()
-    //     .AddJsonOptions(options =>
-    //     {
-    //         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    //         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-    //         options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
-    //     })
-    //     .AddApplicationPart(typeof(AssemblyReference).Assembly);
+    services.AddControllers(config =>
+        {
+            config.RespectBrowserAcceptHeader = true;
+            config.ReturnHttpNotAcceptable = true;
+            config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
+            config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120 });
+        }).AddXmlDataContractSerializerFormatters()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+            options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+        })
+        .AddApplicationPart(typeof(AssemblyReference).Assembly);
 
     // services.AddMediatR(cfg =>
     //     cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly));
     services.AddAutoMapper(typeof(Program));
 
     services.AddAuthentication();
-    services.ConfigureIdentity();
     services.ConfigureJWT(configuration);
     services.AddJwtConfiguration(configuration);
     services.AddAuthorization();
@@ -91,3 +96,9 @@ static void ConfigureApp(IApplicationBuilder app)
     app.UseAuthorization();
 
 }
+
+static NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() =>
+    new ServiceCollection().AddLogging().AddMvc().AddNewtonsoftJson()
+        .Services.BuildServiceProvider()
+        .GetRequiredService<IOptions<MvcOptions>>().Value.InputFormatters
+        .OfType<NewtonsoftJsonPatchInputFormatter>().First();

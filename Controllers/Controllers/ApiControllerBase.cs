@@ -12,9 +12,9 @@ public class ApiControllerBase : Controller
     {
         return baseResponse switch
         {
-            ApiBadRequestResponse => BadRequest(new ErrorDetails
+            ApiBadRequestResponse response => BadRequest(new ErrorDetails
             {
-                Message = ((ApiBadRequestResponse)baseResponse).Message,
+                Message = response.Message,
                 StatusCode = StatusCodes.Status400BadRequest
             }),
             _ => throw new NotImplementedException()

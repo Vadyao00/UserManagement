@@ -11,11 +11,11 @@ public record UserDto
     
     [Display(Name = "Время регистрации")]
     [DataType(DataType.DateTime)]
-    public DateTime RegistrationTime { get; set; }
+    public DateTimeOffset RegistrationTime { get; set; }
     
     [Display(Name = "Послдений раз онлайн")]
     [DataType(DataType.DateTime)]
-    public DateTime? LastLogin { get; set; }
+    public DateTimeOffset? LastLogin { get; set; }
     
     [EmailAddress(ErrorMessage = "Некорректный адрес")]
     public string? Email { get; set; }
