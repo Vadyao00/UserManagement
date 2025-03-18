@@ -40,37 +40,35 @@ public sealed class AuthenticationService : IAuthenticationService
     
     public async Task<ApiBaseResponse> RegisterUser(UserForRegistrationDto userForRegistration)
     {
-        var existingUser = await _manager.User.GetUserByEmailAsync(userForRegistration.Email);
-
-        if (existingUser != null)
-        {
-            return new InvalidEmailBadRequestResponse();
-        }
-        
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(userForRegistration.Password);
         
         var user = _mapper.Map<User>(userForRegistration);
         user.PasswordHash = passwordHash;
         user.RegistrationTime = DateTime.UtcNow;
         user.Status = "active";
-        
-        _manager.User.CreateUser(user);
-        await _manager.SaveAsync();
+        try
+        {
+            _manager.User.CreateUser(user);
+            await _manager.SaveAsync();
+        }
+        catch (Exception e)
+        {
+            return new InvalidEmailBadRequestResponse();
+        }
 
         return new ApiOkResponse<User>(user);
     }
     
-    public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
+    public async Task<ApiBaseResponse> ValidateUser(UserForAuthenticationDto userForAuth)
     {
         _user = await _manager.User.GetUserByEmailAsync(userForAuth.Email);
 
         if (_user == null || !BCrypt.Net.BCrypt.Verify(userForAuth.Password, _user.PasswordHash))
         {
-            _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong email or password.");
-            return false;
+            return new BadUserBadRequestResponse();
         }
 
-        return true;
+        return new ApiOkResponse<User>(_user);
     }
     
     public async Task<TokenDto> CreateToken(bool populateExp)

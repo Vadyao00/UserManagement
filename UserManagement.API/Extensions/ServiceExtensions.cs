@@ -22,7 +22,8 @@ public static class ServiceExtensions
                 builder.AllowAnyHeader().
                     AllowAnyOrigin().
                     AllowAnyMethod().
-                    WithExposedHeaders("X-Pagination"));
+                    AllowAnyHeader());
+                    //WithExposedHeaders("X-Pagination"));
         });
 
     public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>

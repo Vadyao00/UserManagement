@@ -12,6 +12,7 @@ public class ApiControllerBase : Controller
     {
         return baseResponse switch
         {
+            BadUserBadRequestResponse response => Unauthorized(),
             ApiBadRequestResponse response => BadRequest(new ErrorDetails
             {
                 Message = response.Message,

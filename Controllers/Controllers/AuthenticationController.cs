@@ -2,6 +2,7 @@
 using Controllers.Extensions;
 using Controllers.Filters;
 using Domain.Dtos;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,8 +27,13 @@ namespace Controllers.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto user)
         {
-            if (!await service.AuthenticationService.ValidateUser(user))
-                return Unauthorized();
+            var baseResult = await service.AuthenticationService.ValidateUser(user);
+            if(!baseResult.Suссess)
+                return ProccessError(baseResult);
+
+            var currentUser = baseResult.GetResult<User>();
+            if(currentUser.Status == "blocked")
+                return Forbid();
 
             var tokenDto = await service.AuthenticationService.CreateToken(populateExp: true);
 

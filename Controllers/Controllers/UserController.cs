@@ -13,13 +13,11 @@ namespace Controllers.Controllers;
 [ApiController]
 public class UserController : ApiControllerBase
 {
-    private readonly IUserService _userService;
-    private readonly IAuthenticationService _authenticationService;
+    private readonly IServiceManager _serviceManager;
 
-    public UserController(IUserService userService, IAuthenticationService authenticationService)
+    public UserController(IServiceManager serviceManager)
     {
-        _userService = userService;
-        _authenticationService = authenticationService;
+        _serviceManager = serviceManager;
     }
     
     private string GetTokenFromRequest()
@@ -42,9 +40,9 @@ public class UserController : ApiControllerBase
             return Unauthorized();
         }
 
-        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        var currentUser = _serviceManager.AuthenticationService.GetCurrentUserFromTokenAsync(token);
         
-        var baseResult = await _userService.GetAllUsersAsync(userParameters, currentUser.Result);
+        var baseResult = await _serviceManager.UserService.GetAllUsersAsync(userParameters, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         
@@ -77,9 +75,9 @@ public class UserController : ApiControllerBase
             return Unauthorized();
         }
         
-        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        var currentUser = _serviceManager.AuthenticationService.GetCurrentUserFromTokenAsync(token);
         
-        var baseResult = await _userService.DeleteUserAsync(email, currentUser.Result);
+        var baseResult = await _serviceManager.UserService.DeleteUserAsync(email, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         
@@ -95,9 +93,9 @@ public class UserController : ApiControllerBase
             return Unauthorized();
         }
         
-        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        var currentUser = _serviceManager.AuthenticationService.GetCurrentUserFromTokenAsync(token);
         
-        var baseResult = await _userService.BlockUserAsync(email, currentUser.Result);
+        var baseResult = await _serviceManager.UserService.BlockUserAsync(email, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         
@@ -113,9 +111,9 @@ public class UserController : ApiControllerBase
             return Unauthorized();
         }
         
-        var currentUser = _authenticationService.GetCurrentUserFromTokenAsync(token);
+        var currentUser = _serviceManager.AuthenticationService.GetCurrentUserFromTokenAsync(token);
         
-        var baseResult = await _userService.UnblockUserAsync(email, currentUser.Result);
+        var baseResult = await _serviceManager.UserService.UnblockUserAsync(email, currentUser.Result);
         if(!baseResult.Suссess)
             return ProccessError(baseResult);
         
