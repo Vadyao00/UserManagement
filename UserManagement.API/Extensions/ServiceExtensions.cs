@@ -28,7 +28,8 @@ public static class ServiceExtensions
 
     public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>
         services.AddDbContext<UserManagementContext>(opts =>
-                opts.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), b =>
+                //opts.UseNpgsql(configuration.GetConnectionString("RemoteConnection"), b =>
+                opts.UseMySql(configuration.GetConnectionString("RemoteConnection"), new MySqlServerVersion(new Version(8, 0, 23)), b =>
                     {
                         b.EnableRetryOnFailure();
                     })
