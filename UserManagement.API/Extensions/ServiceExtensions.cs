@@ -50,7 +50,8 @@ public static class ServiceExtensions
         var jwtConfiguration = new JwtConfiguration();
         configuration.Bind(jwtConfiguration.Section, jwtConfiguration);
 
-        var secretKey = configuration.GetValue<string>("SECRET");
+        //var secretKey = configuration.GetValue<string>("SECRET");
+        var secretKey = "SECRETSECRETSECRETSECRETSECRETSECRETSECRET";
 
         services.AddAuthentication(opt =>
             {
