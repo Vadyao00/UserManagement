@@ -66,8 +66,8 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-            options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+            //options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+            //options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
         })
         .AddApplicationPart(typeof(AssemblyReference).Assembly);
 

@@ -92,7 +92,7 @@ public sealed class AuthenticationService : IAuthenticationService
     
     private SigningCredentials GetSigningCredentials()
     {
-        var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"));
+        var key = Encoding.UTF8.GetBytes("SECRETSECRETSECRETSECRETSECRETSECRETSECRET");
         var secret = new SymmetricSecurityKey(key);
 
         return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
